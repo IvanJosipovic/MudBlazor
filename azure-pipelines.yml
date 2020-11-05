@@ -45,9 +45,9 @@ stages:
         displayName: Pack
         inputs:
           command: 'pack'
-          configuration:
+          configuration: $(buildConfiguration)
           packagesToPack: 'src/MudBlazor/MudBlazor.csproj'
-          buildProperties: '/p:Configuration=$(buildConfiguration) /p:Version=$(version)'
+          buildProperties: '/p:Version=$(version)'
 
 - stage: Approval
   jobs:
