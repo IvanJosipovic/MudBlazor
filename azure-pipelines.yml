@@ -28,7 +28,7 @@ stages:
         displayName: Test
         inputs:
           command: 'test'
-          arguments: '--configuration $(buildConfiguration)'
+          arguments: '-c $(buildConfiguration)'
           projects: 'src/MudBlazor.UnitTests/MudBlazor.UnitTests.csproj'
           testRunTitle: 'UnitTest'
 
@@ -47,8 +47,7 @@ stages:
         inputs:
           targetType: 'inline'
           script: |
-            dotnet pack src/MudBlazor/MudBlazor.csproj /p:Configuration=$(buildConfiguration) /p:Version=$(version) --output $(Build.ArtifactStagingDirectory)
-
+            dotnet pack src/MudBlazor/MudBlazor.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory) /p:Version=$(version)
       - task: PowerShell@2
         displayName: Push
         inputs:
@@ -82,7 +81,7 @@ stages:
         displayName: Test
         inputs:
           command: 'test'
-          arguments: '--configuration $(buildConfiguration)'
+          arguments: '- $(buildConfiguration)'
           projects: 'src/MudBlazor.UnitTests/MudBlazor.UnitTests.csproj'
           testRunTitle: 'UnitTest'
 
@@ -91,7 +90,7 @@ stages:
         inputs:
           targetType: 'inline'
           script: |
-            dotnet pack src/MudBlazor/MudBlazor.csproj /p:Configuration=$(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
+            dotnet pack src/MudBlazor/MudBlazor.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)
 
       - task: PowerShell@2
         displayName: Push
