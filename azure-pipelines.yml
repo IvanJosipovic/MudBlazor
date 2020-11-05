@@ -36,7 +36,7 @@ stages:
         displayName: 'Publish code coverage report'
         inputs:
           testRunner: VSTest
-          testResultsFiles: '**/*.trx'
+          testResultsFiles: '/home/vsts/work/_temp/*.trx'
 
       - task: PowerShell@2
         displayName: Update Version
@@ -53,7 +53,14 @@ stages:
         inputs:
           targetType: 'inline'
           script: |
-            dotnet pack src/MudBlazor/MudBlazor.csproj /p:Configuration=$(buildConfiguration) /p:Version=$(version)
+            dotnet pack src/MudBlazor/MudBlazor.csproj /p:Configuration=$(buildConfiguration) /p:Version=$(version) --output $(Build.ArtifactStagingDirectory)
+
+      - task: PowerShell@2
+        displayName: Push
+        inputs:
+          targetType: 'inline'
+          script: |
+            dotnet nuget push $(Build.ArtifactStagingDirectory)/*.nupkg -s $(NUGET_API) -k $(NUGET_API_KEY)
 
 - stage: Approval
   jobs:
