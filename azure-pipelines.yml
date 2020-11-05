@@ -13,7 +13,7 @@ stages:
   - job: Preview
     steps:
       - task: UseDotNet@2
-        displayName: Install DotNet
+        displayName: Install .NET Core
         inputs:
           version: 3.1.x
 
@@ -36,7 +36,7 @@ stages:
         inputs:
           targetType: 'inline'
           script: |
-            $version = ([xml](Get-Content .\MudBlazor.csproj)).Project.PropertyGroup.Version;
+            $version = ([xml](Get-Content src/MudBlazor/MudBlazor.csproj)).Project.PropertyGroup.Version;
             $version += "-preview.$(Build.BuildNumber)";
             Write-Output "##vso[task.setvariable variable=version;isOutput=true]$version";
 
