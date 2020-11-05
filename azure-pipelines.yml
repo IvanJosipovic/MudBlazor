@@ -22,7 +22,7 @@ stages:
         inputs:
           command: 'build'
           projects: 'src/MudBlazor.sln'
-          arguments: '--configuration $(buildConfiguration)'
+          arguments: '-c $(buildConfiguration)'
 
       - task: DotNetCoreCLI@2
         displayName: Test
@@ -45,9 +45,8 @@ stages:
         displayName: Pack
         inputs:
           command: 'pack'
-          configuration: '$(buildConfiguration)'
           packagesToPack: 'src/MudBlazor/MudBlazor.csproj'
-          buildProperties: '-p:Version=$(version)'
+          buildProperties: '-c $(buildConfiguration) -p:Version=$(version)'
 
 - stage: Approval
   jobs:
