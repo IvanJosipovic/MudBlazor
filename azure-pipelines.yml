@@ -36,7 +36,7 @@ stages:
         inputs:
           targetType: 'inline'
           script: |
-            $version = ([xml](Get-Content src/MudBlazor/MudBlazor.csproj)).Project.PropertyGroup.Version;
+            $version = ([xml](Get-Content -Raw src/MudBlazor/MudBlazor.csproj))["Project"]["PropertyGroup"]["Version"].InnerText;
             $version += "-preview.$(Build.BuildNumber)";
             Write-Host $version;
             Write-Output "##vso[task.setvariable variable=version;isOutput=true]$version";
@@ -45,6 +45,7 @@ stages:
         displayName: Pack
         inputs:
           command: 'pack'
+          configuration: '$(buildConfiguration)'
           packagesToPack: 'src/MudBlazor/MudBlazor.csproj'
           buildProperties: '-p:Version=$(version)'
 
