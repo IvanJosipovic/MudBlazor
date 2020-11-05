@@ -8,21 +8,14 @@ variables:
   buildConfiguration: 'Release'
 
 stages:
-- stage: Preview
+- stage: Tests
   jobs:
-  - job: Preview
+  - job: Tests
     steps:
       - task: UseDotNet@2
         displayName: Install .NET Core
         inputs:
           version: 3.1.x
-
-      - task: DotNetCoreCLI@2
-        displayName: Build
-        inputs:
-          command: 'build'
-          projects: 'src/MudBlazor.sln'
-          arguments: '-c $(buildConfiguration)'
 
       - task: DotNetCoreCLI@2
         displayName: Test
@@ -31,6 +24,15 @@ stages:
           arguments: '-c $(buildConfiguration)'
           projects: 'src/MudBlazor.UnitTests/MudBlazor.UnitTests.csproj'
           testRunTitle: 'UnitTest'
+
+- stage: Preview
+  jobs:
+  - job: Preview
+    steps:
+      - task: UseDotNet@2
+        displayName: Install .NET Core
+        inputs:
+          version: 3.1.x
 
       - task: PowerShell@2
         displayName: Update Version
@@ -47,13 +49,20 @@ stages:
         inputs:
           targetType: 'inline'
           script: |
-            dotnet pack src/MudBlazor/MudBlazor.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory) /p:Version=$(version)
+            dotnet pack src/MudBlazor/MudBlazor.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/nuget /p:Version=$(version)
       - task: PowerShell@2
         displayName: Push
         inputs:
           targetType: 'inline'
           script: |
-            dotnet nuget push $(Build.ArtifactStagingDirectory)/*.nupkg -s $(NUGET_API) -k $(NUGET_API_KEY)
+            dotnet nuget push $(Build.ArtifactStagingDirectory)/nuget/*.nupkg -s $(NUGET_API) -k $(NUGET_API_KEY)
+
+      - task: PowerShell@2
+        displayName: Publish Docs
+        inputs:
+          targetType: 'inline'
+          script: |
+            dotnet publish -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/docs src/MudBlazor.Docs.Server/MudBlazor.Docs.Server.csproj
 
 - stage: Approval
   jobs:
@@ -70,31 +79,23 @@ stages:
         inputs:
           version: 3.1.x
 
-      - task: DotNetCoreCLI@2
-        displayName: Build
-        inputs:
-          command: 'build'
-          projects: 'src/MudBlazor.sln'
-          arguments: '-c $(buildConfiguration)'
-
-      - task: DotNetCoreCLI@2
-        displayName: Test
-        inputs:
-          command: 'test'
-          arguments: '- $(buildConfiguration)'
-          projects: 'src/MudBlazor.UnitTests/MudBlazor.UnitTests.csproj'
-          testRunTitle: 'UnitTest'
-
       - task: PowerShell@2
         displayName: Pack
         inputs:
           targetType: 'inline'
           script: |
-            dotnet pack src/MudBlazor/MudBlazor.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)
+            dotnet pack src/MudBlazor/MudBlazor.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/nuget
 
       - task: PowerShell@2
         displayName: Push
         inputs:
           targetType: 'inline'
           script: |
-            dotnet nuget push $(Build.ArtifactStagingDirectory)/*.nupkg -s $(NUGET_API) -k $(NUGET_API_KEY)
+            dotnet nuget push $(Build.ArtifactStagingDirectory)/nuget/*.nupkg -s $(NUGET_API) -k $(NUGET_API_KEY)
+
+      - task: PowerShell@2
+        displayName: Publish Docs
+        inputs:
+          targetType: 'inline'
+          script: |
+            dotnet publish -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/docs src/MudBlazor.Docs.Server/MudBlazor.Docs.Server.csproj
