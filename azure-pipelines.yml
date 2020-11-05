@@ -29,7 +29,7 @@ stages:
         inputs:
           command: 'test'
           arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/'
-          publishTestResults: true
+          publishTestResults: false
           projects: 'src/MudBlazor.UnitTests/MudBlazor.UnitTests.csproj'
           testRunTitle: 'UnitTest'
 
