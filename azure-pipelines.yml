@@ -7,22 +7,38 @@ pool:
 variables:
   buildConfiguration: 'Release'
 
-steps:
-- task: UseDotNet@2
-  displayName: Install DotNet
-  inputs:
-    version: 3.1.x
+stages:
+- stage: Preview
+  jobs:
+  - job: Preview
+    steps:
+      - task: UseDotNet@2
+        displayName: Install DotNet
+        inputs:
+          version: 3.1.x
 
-- task: DotNetCoreCLI@2
-  displayName: Build
-  inputs:
-    command: 'build'
-    projects: 'src/MudBlazor.sln'
-    arguments: '--configuration $(buildConfiguration)'
+      - task: DotNetCoreCLI@2
+        displayName: Build
+        inputs:
+          command: 'build'
+          projects: 'src/MudBlazor.sln'
+          arguments: '--configuration $(buildConfiguration)'
 
-- task: DotNetCoreCLI@2
-  displayName: Test
-  inputs:
-    command: 'test'
-    projects: 'src/MudBlazor.UnitTests/MudBlazor.UnitTests.csproj'
-    testRunTitle: 'UnitTest'
+      - task: DotNetCoreCLI@2
+        displayName: Test
+        inputs:
+          command: 'test'
+          projects: 'src/MudBlazor.UnitTests/MudBlazor.UnitTests.csproj'
+          testRunTitle: 'UnitTest'
+
+- stage: Approval
+  jobs:
+  - deployment: Approval
+    displayName: Approval
+    environment: 'Approval'
+
+- stage: Production
+  jobs:
+  - job: TestOnWindows
+    steps:
+    - script: echo Testing on Windows!
