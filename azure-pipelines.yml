@@ -16,7 +16,6 @@ stages:
         displayName: Install .NET Core
         inputs:
           version: 3.1.x
-
       - task: DotNetCoreCLI@2
         displayName: Test
         inputs:
@@ -33,7 +32,6 @@ stages:
         displayName: Install .NET Core
         inputs:
           version: 3.1.x
-
       - task: PowerShell@2
         displayName: Update Version
         inputs:
@@ -43,7 +41,6 @@ stages:
             $version += "-preview.$(Build.BuildNumber)";
             Write-Host $version;
             Write-Host "##vso[task.setvariable variable=version]$version";
-
       - task: PowerShell@2
         displayName: Pack
         inputs:
@@ -56,7 +53,6 @@ stages:
           targetType: 'inline'
           script: |
             dotnet nuget push $(Build.ArtifactStagingDirectory)/nuget/*.nupkg -s $(NUGET_API) -k $(NUGET_API_KEY)
-
       - task: PowerShell@2
         displayName: Publish Docs
         inputs:
@@ -64,35 +60,29 @@ stages:
           script: |
             dotnet publish -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/docs src/MudBlazor.Docs.Server/MudBlazor.Docs.Server.csproj
 
-- stage: Approval
+- stage: Production
   jobs:
   - deployment: Approval
     displayName: Approval
     environment: 'Approval'
-
-- stage: Production
-  jobs:
   - job: Production
     steps:
       - task: UseDotNet@2
         displayName: Install .NET Core
         inputs:
           version: 3.1.x
-
       - task: PowerShell@2
         displayName: Pack
         inputs:
           targetType: 'inline'
           script: |
             dotnet pack src/MudBlazor/MudBlazor.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/nuget
-
       - task: PowerShell@2
         displayName: Push
         inputs:
           targetType: 'inline'
           script: |
             dotnet nuget push $(Build.ArtifactStagingDirectory)/nuget/*.nupkg -s $(NUGET_API) -k $(NUGET_API_KEY)
-
       - task: PowerShell@2
         displayName: Publish Docs
         inputs:
