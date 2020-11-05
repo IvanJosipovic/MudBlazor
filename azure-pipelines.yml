@@ -28,16 +28,15 @@ stages:
         displayName: Test
         inputs:
           command: 'test'
-          arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/'
-          publishTestResults: false
+          arguments: '--configuration $(buildConfiguration)'
           projects: 'src/MudBlazor.UnitTests/MudBlazor.UnitTests.csproj'
           testRunTitle: 'UnitTest'
 
-      - task: PublishCodeCoverageResults@1
+      - task: PublishTestResults@2
         displayName: 'Publish code coverage report'
         inputs:
-          codeCoverageTool: 'Cobertura'
-          summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
+          testRunner: VSTest
+          testResultsFiles: '**/*.trx'
 
       - task: PowerShell@2
         displayName: Update Version
@@ -49,13 +48,12 @@ stages:
             Write-Host $version;
             Write-Host "##vso[task.setvariable variable=version]$version";
 
-      - task: DotNetCoreCLI@2
+      - task: PowerShell@2
         displayName: Pack
         inputs:
-          command: 'pack'
-          configuration: '$(buildConfiguration)'
-          packagesToPack: 'src/MudBlazor/MudBlazor.csproj'
-          buildProperties: '/p:Version=$(version)'
+          targetType: 'inline'
+          script: |
+            dotnet pack src/MudBlazor/MudBlazor.csproj /p:Configuration=$(buildConfiguration) /p:Version=$(version)
 
 - stage: Approval
   jobs:
