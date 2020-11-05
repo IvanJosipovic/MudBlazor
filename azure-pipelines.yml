@@ -48,6 +48,7 @@ stages:
           script: |
             dotnet pack src/MudBlazor/MudBlazor.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/nuget /p:Version=$(version)
       - task: PowerShell@2
+        continueOnError: true
         displayName: Push
         inputs:
           targetType: 'inline'
@@ -78,6 +79,7 @@ stages:
           script: |
             dotnet pack src/MudBlazor/MudBlazor.csproj -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/nuget
       - task: PowerShell@2
+        continueOnError: true
         displayName: Push
         inputs:
           targetType: 'inline'
