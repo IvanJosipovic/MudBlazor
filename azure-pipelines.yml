@@ -59,7 +59,7 @@ stages:
         inputs:
           targetType: 'inline'
           script: |
-            dotnet publish -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/docs src/MudBlazor.Docs.Server/MudBlazor.Docs.Server.csproj
+            dotnet publish -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/docs /p:Version=$(version) src/MudBlazor.Docs.Server/MudBlazor.Docs.Server.csproj
 
 - stage: Production
   jobs:
