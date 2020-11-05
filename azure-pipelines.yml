@@ -37,8 +37,9 @@ stages:
           targetType: 'inline'
           script: |
             $version = ([xml](Get-Content .\MudBlazor.csproj)).Project.PropertyGroup.Version;
-            $version = $version + "-preview." + $(Build.BuildNumber)';
+            $version += "-preview.$(Build.BuildNumber)";
             Write-Output "##vso[task.setvariable variable=version;isOutput=true]$version";
+
       - task: DotNetCoreCLI@2
         displayName: Pack
         inputs:
