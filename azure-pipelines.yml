@@ -38,6 +38,7 @@ stages:
           script: |
             $version = ([xml](Get-Content src/MudBlazor/MudBlazor.csproj)).Project.PropertyGroup.Version;
             $version += "-preview.$(Build.BuildNumber)";
+            Write-Host $version;
             Write-Output "##vso[task.setvariable variable=version;isOutput=true]$version";
 
       - task: DotNetCoreCLI@2
