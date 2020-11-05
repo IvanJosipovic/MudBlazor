@@ -32,12 +32,6 @@ stages:
           projects: 'src/MudBlazor.UnitTests/MudBlazor.UnitTests.csproj'
           testRunTitle: 'UnitTest'
 
-      - task: PublishTestResults@2
-        displayName: 'Publish code coverage report'
-        inputs:
-          testRunner: VSTest
-          testResultsFiles: '/home/vsts/work/_temp/*.trx'
-
       - task: PowerShell@2
         displayName: Update Version
         inputs:
@@ -72,4 +66,36 @@ stages:
   jobs:
   - job: Production
     steps:
-    - script: echo Testing on Windows!
+      - task: UseDotNet@2
+        displayName: Install .NET Core
+        inputs:
+          version: 3.1.x
+
+      - task: DotNetCoreCLI@2
+        displayName: Build
+        inputs:
+          command: 'build'
+          projects: 'src/MudBlazor.sln'
+          arguments: '-c $(buildConfiguration)'
+
+      - task: DotNetCoreCLI@2
+        displayName: Test
+        inputs:
+          command: 'test'
+          arguments: '--configuration $(buildConfiguration)'
+          projects: 'src/MudBlazor.UnitTests/MudBlazor.UnitTests.csproj'
+          testRunTitle: 'UnitTest'
+
+      - task: PowerShell@2
+        displayName: Pack
+        inputs:
+          targetType: 'inline'
+          script: |
+            dotnet pack src/MudBlazor/MudBlazor.csproj /p:Configuration=$(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
+
+      - task: PowerShell@2
+        displayName: Push
+        inputs:
+          targetType: 'inline'
+          script: |
+            dotnet nuget push $(Build.ArtifactStagingDirectory)/*.nupkg -s $(NUGET_API) -k $(NUGET_API_KEY)
