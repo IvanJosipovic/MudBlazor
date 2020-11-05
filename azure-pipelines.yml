@@ -31,6 +31,12 @@ stages:
           projects: 'src/MudBlazor.UnitTests/MudBlazor.UnitTests.csproj'
           testRunTitle: 'UnitTest'
 
+      - task: DotNetCoreCLI@2
+        inputs:
+          command: 'pack'
+          packagesToPack: 'src/MudBlazor/MudBlazor.csproj'
+          buildProperties: '-p:VersionSuffix -preview.$(Build.BuildNumber)'
+
 - stage: Approval
   jobs:
   - deployment: Approval
@@ -39,6 +45,6 @@ stages:
 
 - stage: Production
   jobs:
-  - job: TestOnWindows
+  - job: Production
     steps:
     - script: echo Testing on Windows!
